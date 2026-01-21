@@ -2,6 +2,10 @@
 const nextConfig = {
   // Don't bundle these packages on server side
   serverExternalPackages: ['pdf-parse'],
+
+  // Empty turbopack config to silence the warning
+  turbopack: {},
+
   webpack: (config, { isServer }) => {
     // Fix for pdf-parse canvas module (not needed in browser)
     if (!isServer) {
