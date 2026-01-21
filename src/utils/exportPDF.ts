@@ -6,112 +6,85 @@ export async function exportToPDF(elementId: string, filename: string): Promise<
     throw new Error("Preview element not found");
   }
 
-  try {
-    // Try using html2pdf.js first
-    const html2pdfModule = await import("html2pdf.js");
-    const html2pdf = html2pdfModule.default;
-
-    const opt = {
-      margin: [10, 10, 10, 10],
-      filename: filename,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        letterRendering: true,
-      },
-      jsPDF: {
-        unit: "mm",
-        format: "a4",
-        orientation: "portrait" as const,
-      },
-    };
-
-    await html2pdf().set(opt).from(element).save();
-  } catch (error) {
-    console.error("html2pdf error:", error);
-    // Fallback to browser print
-    printElement(element, filename);
-  }
+  // Use browser print dialog - most reliable method
+  printElement(element, filename);
 }
 
 function printElement(element: HTMLElement, filename: string): void {
-  // Create a new window with just the resume content
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) {
-    alert("Please allow popups to export PDF");
-    return;
-  }
+  // Clone the element to avoid modifying the original
+  const clone = element.cloneNode(true) as HTMLElement;
 
-  // Get all stylesheets
-  const styles = Array.from(document.styleSheets)
-    .map((styleSheet) => {
-      try {
-        return Array.from(styleSheet.cssRules)
-          .map((rule) => rule.cssText)
-          .join("\n");
-      } catch {
-        // External stylesheets might throw security errors
-        if (styleSheet.href) {
-          return `@import url("${styleSheet.href}");`;
-        }
-        return "";
-      }
-    })
-    .join("\n");
-
-  // Get CSS variables from the preview element
-  const computedStyle = getComputedStyle(element);
-  const cssVars = `
-    :root {
-      --cv-font-family: ${computedStyle.getPropertyValue("--cv-font-family") || "'Inter', sans-serif"};
-      --cv-primary-color: ${computedStyle.getPropertyValue("--cv-primary-color") || "#2563eb"};
-      --cv-accent-color: ${computedStyle.getPropertyValue("--cv-accent-color") || "#3b82f6"};
-      --cv-h1-size: ${computedStyle.getPropertyValue("--cv-h1-size") || "2.25rem"};
-      --cv-h2-size: ${computedStyle.getPropertyValue("--cv-h2-size") || "1.125rem"};
-      --cv-h3-size: ${computedStyle.getPropertyValue("--cv-h3-size") || "1rem"};
-      --cv-body-size: ${computedStyle.getPropertyValue("--cv-body-size") || "0.875rem"};
-    }
+  // Create print container
+  const printContainer = document.createElement("div");
+  printContainer.id = "print-container";
+  printContainer.style.cssText = `
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+    background: white;
+    overflow: auto;
   `;
 
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>${filename}</title>
-        <style>
-          ${cssVars}
-          ${styles}
-          @media print {
-            body {
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-            @page {
-              size: A4;
-              margin: 10mm;
-            }
-          }
-          body {
-            margin: 0;
-            padding: 0;
-          }
-        </style>
-      </head>
-      <body>
-        ${element.outerHTML}
-      </body>
-    </html>
-  `);
-
-  printWindow.document.close();
-
-  // Wait for content to load, then print
-  printWindow.onload = () => {
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 500);
+  // Get computed CSS variables from the original element
+  const computedStyle = getComputedStyle(element);
+  const cssVars = {
+    fontFamily: computedStyle.getPropertyValue("--cv-font-family") || "'Inter', sans-serif",
+    primaryColor: computedStyle.getPropertyValue("--cv-primary-color") || "#2563eb",
+    accentColor: computedStyle.getPropertyValue("--cv-accent-color") || "#3b82f6",
+    h1Size: computedStyle.getPropertyValue("--cv-h1-size") || "2.25rem",
+    h2Size: computedStyle.getPropertyValue("--cv-h2-size") || "1.125rem",
+    h3Size: computedStyle.getPropertyValue("--cv-h3-size") || "1rem",
+    bodySize: computedStyle.getPropertyValue("--cv-body-size") || "0.875rem",
   };
+
+  // Apply CSS variables to clone
+  clone.style.setProperty("--cv-font-family", cssVars.fontFamily);
+  clone.style.setProperty("--cv-primary-color", cssVars.primaryColor);
+  clone.style.setProperty("--cv-accent-color", cssVars.accentColor);
+  clone.style.setProperty("--cv-h1-size", cssVars.h1Size);
+  clone.style.setProperty("--cv-h2-size", cssVars.h2Size);
+  clone.style.setProperty("--cv-h3-size", cssVars.h3Size);
+  clone.style.setProperty("--cv-body-size", cssVars.bodySize);
+
+  printContainer.appendChild(clone);
+  document.body.appendChild(printContainer);
+
+  // Add print styles
+  const style = document.createElement("style");
+  style.id = "print-styles";
+  style.textContent = `
+    @media print {
+      body > *:not(#print-container) {
+        display: none !important;
+      }
+      #print-container {
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+      }
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Trigger print
+  setTimeout(() => {
+    window.print();
+
+    // Cleanup after print dialog closes
+    setTimeout(() => {
+      document.body.removeChild(printContainer);
+      document.head.removeChild(style);
+    }, 100);
+  }, 100);
 }
