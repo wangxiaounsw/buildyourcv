@@ -99,13 +99,15 @@ export default function Customizer({ resume, styles, onStylesChange, onResumeCha
   const handleBasicsChange = (field: string, value: string) => {
     if (field.includes(".")) {
       const [parent, child] = field.split(".");
-      onResumeChange({
-        ...resume,
-        basics: {
-          ...resume.basics,
-          [parent]: { ...(resume.basics as Record<string, unknown>)[parent] as object, [child]: value }
-        }
-      });
+      if (parent === "location") {
+        onResumeChange({
+          ...resume,
+          basics: {
+            ...resume.basics,
+            location: { ...resume.basics.location, [child]: value }
+          }
+        });
+      }
     } else {
       onResumeChange({
         ...resume,
