@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { JsonResume, Work, Education, Skill, Project, Language, Certificate, Award, Reference } from "@/types/resume";
+import { JsonResume, Work, Education, Skill, Project } from "@/types/resume";
 
 // Google Fonts options
 export const FONT_OPTIONS = [
@@ -69,10 +69,12 @@ interface CustomizerProps {
   onResumeChange: (resume: JsonResume) => void;
 }
 
-type TabType = "style" | "sections" | "basics" | "work" | "education" | "skills" | "projects" | "other";
+type MainTab = "style" | "sections" | "edit";
+type EditSubTab = "basics" | "work" | "education" | "skills" | "projects" | "other";
 
 export default function Customizer({ resume, styles, onStylesChange, onResumeChange }: CustomizerProps) {
-  const [activeTab, setActiveTab] = useState<TabType>("basics");
+  const [mainTab, setMainTab] = useState<MainTab>("edit");
+  const [editSubTab, setEditSubTab] = useState<EditSubTab>("basics");
 
   const handleFontChange = (fontFamily: string) => {
     onStylesChange({ ...styles, fontFamily });
@@ -205,29 +207,33 @@ export default function Customizer({ resume, styles, onStylesChange, onResumeCha
     return Array.isArray(data) ? data.length > 0 : !!data;
   };
 
-  const tabs: { id: TabType; label: string }[] = [
-    { id: "basics", label: "Basic" },
-    { id: "work", label: "Work" },
-    { id: "education", label: "Edu" },
-    { id: "skills", label: "Skills" },
-    { id: "projects", label: "Projects" },
-    { id: "other", label: "Other" },
+  const mainTabs: { id: MainTab; label: string }[] = [
+    { id: "edit", label: "Edit" },
     { id: "style", label: "Style" },
     { id: "sections", label: "Show/Hide" },
   ];
 
+  const editSubTabs: { id: EditSubTab; label: string }[] = [
+    { id: "basics", label: "Basic" },
+    { id: "work", label: "Work" },
+    { id: "education", label: "Education" },
+    { id: "skills", label: "Skills" },
+    { id: "projects", label: "Projects" },
+    { id: "other", label: "Other" },
+  ];
+
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Tabs */}
-      <div className="flex flex-wrap border-b border-gray-200 px-2 pt-2">
-        {tabs.map((tab) => (
+      {/* Main Tabs */}
+      <div className="flex border-b border-gray-200">
+        {mainTabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-3 py-2 text-xs font-medium transition-colors rounded-t ${
-              activeTab === tab.id
-                ? "text-blue-600 bg-blue-50 border-b-2 border-blue-600"
-                : "text-gray-500 hover:text-gray-700"
+            onClick={() => setMainTab(tab.id)}
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+              mainTab === tab.id
+                ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
             }`}
           >
             {tab.label}
@@ -235,488 +241,572 @@ export default function Customizer({ resume, styles, onStylesChange, onResumeCha
         ))}
       </div>
 
+      {/* Edit Sub-tabs */}
+      {mainTab === "edit" && (
+        <div className="flex flex-wrap border-b border-gray-100 px-2 py-1 bg-gray-50">
+          {editSubTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setEditSubTab(tab.id)}
+              className={`px-3 py-1.5 text-xs font-medium transition-colors rounded ${
+                editSubTab === tab.id
+                  ? "text-blue-600 bg-white shadow-sm"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">
-        {/* Basic Info Tab */}
-        {activeTab === "basics" && (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
-              <input
-                type="text"
-                value={resume.basics.name}
-                onChange={(e) => handleBasicsChange("name", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-              <input
-                type="text"
-                value={resume.basics.label || ""}
-                onChange={(e) => handleBasicsChange("label", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={resume.basics.email || ""}
-                  onChange={(e) => handleBasicsChange("email", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                <input
-                  type="tel"
-                  value={resume.basics.phone || ""}
-                  onChange={(e) => handleBasicsChange("phone", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                <input
-                  type="text"
-                  value={resume.basics.location?.city || ""}
-                  onChange={(e) => onResumeChange({
-                    ...resume,
-                    basics: { ...resume.basics, location: { ...resume.basics.location, city: e.target.value } }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                <input
-                  type="text"
-                  value={resume.basics.location?.countryCode || ""}
-                  onChange={(e) => onResumeChange({
-                    ...resume,
-                    basics: { ...resume.basics, location: { ...resume.basics.location, countryCode: e.target.value } }
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Summary</label>
-              <textarea
-                value={resume.basics.summary || ""}
-                onChange={(e) => handleBasicsChange("summary", e.target.value)}
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Work Tab */}
-        {activeTab === "work" && (
-          <div className="space-y-4">
-            {resume.work?.map((job, index) => (
-              <div key={index} className="p-3 border border-gray-200 rounded-lg bg-gray-50">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-medium text-gray-700">Work #{index + 1}</span>
-                  <button
-                    onClick={() => removeWork(index)}
-                    className="text-red-500 hover:text-red-700 text-xs"
-                  >
-                    Remove
-                  </button>
+        {/* ===== EDIT TAB ===== */}
+        {mainTab === "edit" && (
+          <>
+            {/* Basic Info */}
+            {editSubTab === "basics" && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                  <input
+                    type="text"
+                    value={resume.basics.name}
+                    onChange={(e) => handleBasicsChange("name", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  />
                 </div>
-                <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
                   <input
                     type="text"
-                    placeholder="Company"
-                    value={job.company}
-                    onChange={(e) => handleWorkChange(index, "company", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                    value={resume.basics.label || ""}
+                    onChange={(e) => handleBasicsChange("label", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   />
-                  <input
-                    type="text"
-                    placeholder="Position"
-                    value={job.position}
-                    onChange={(e) => handleWorkChange(index, "position", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                  <div className="grid grid-cols-2 gap-2">
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                     <input
-                      type="text"
-                      placeholder="Start (YYYY-MM)"
-                      value={job.startDate}
-                      onChange={(e) => handleWorkChange(index, "startDate", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                    />
-                    <input
-                      type="text"
-                      placeholder="End (or Present)"
-                      value={job.endDate || ""}
-                      onChange={(e) => handleWorkChange(index, "endDate", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      type="email"
+                      value={resume.basics.email || ""}
+                      onChange={(e) => handleBasicsChange("email", e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     />
                   </div>
-                  <textarea
-                    placeholder="Summary"
-                    value={job.summary || ""}
-                    onChange={(e) => handleWorkChange(index, "summary", e.target.value)}
-                    rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                  <textarea
-                    placeholder="Highlights (one per line)"
-                    value={job.highlights?.join("\n") || ""}
-                    onChange={(e) => handleWorkChange(index, "highlights", e.target.value.split("\n").filter(h => h.trim()))}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                </div>
-              </div>
-            ))}
-            <button
-              onClick={addWork}
-              className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-500 text-sm"
-            >
-              + Add Work Experience
-            </button>
-          </div>
-        )}
-
-        {/* Education Tab */}
-        {activeTab === "education" && (
-          <div className="space-y-4">
-            {resume.education?.map((edu, index) => (
-              <div key={index} className="p-3 border border-gray-200 rounded-lg bg-gray-50">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-medium text-gray-700">Education #{index + 1}</span>
-                  <button
-                    onClick={() => removeEducation(index)}
-                    className="text-red-500 hover:text-red-700 text-xs"
-                  >
-                    Remove
-                  </button>
-                </div>
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Institution"
-                    value={edu.institution}
-                    onChange={(e) => handleEducationChange(index, "institution", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                  <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                     <input
-                      type="text"
-                      placeholder="Degree (Bachelor, Master...)"
-                      value={edu.studyType}
-                      onChange={(e) => handleEducationChange(index, "studyType", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Field of Study"
-                      value={edu.area}
-                      onChange={(e) => handleEducationChange(index, "area", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      type="text"
-                      placeholder="Start (YYYY-MM)"
-                      value={edu.startDate}
-                      onChange={(e) => handleEducationChange(index, "startDate", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                    />
-                    <input
-                      type="text"
-                      placeholder="End (YYYY-MM)"
-                      value={edu.endDate || ""}
-                      onChange={(e) => handleEducationChange(index, "endDate", e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      type="tel"
+                      value={resume.basics.phone || ""}
+                      onChange={(e) => handleBasicsChange("phone", e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     />
                   </div>
                 </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                    <input
+                      type="text"
+                      value={resume.basics.location?.city || ""}
+                      onChange={(e) => onResumeChange({
+                        ...resume,
+                        basics: { ...resume.basics, location: { ...resume.basics.location, city: e.target.value } }
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                    <input
+                      type="text"
+                      value={resume.basics.location?.countryCode || ""}
+                      onChange={(e) => onResumeChange({
+                        ...resume,
+                        basics: { ...resume.basics, location: { ...resume.basics.location, countryCode: e.target.value } }
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Summary</label>
+                  <textarea
+                    value={resume.basics.summary || ""}
+                    onChange={(e) => handleBasicsChange("summary", e.target.value)}
+                    rows={4}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                  />
+                </div>
               </div>
-            ))}
-            <button
-              onClick={addEducation}
-              className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-500 text-sm"
-            >
-              + Add Education
-            </button>
-          </div>
-        )}
+            )}
 
-        {/* Skills Tab */}
-        {activeTab === "skills" && (
-          <div className="space-y-4">
-            {resume.skills?.map((skill, index) => (
-              <div key={index} className="p-3 border border-gray-200 rounded-lg bg-gray-50">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-medium text-gray-700">Skill Group #{index + 1}</span>
+            {/* Work */}
+            {editSubTab === "work" && (
+              <div className="space-y-4">
+                {resume.work?.map((job, index) => (
+                  <div key={index} className="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-sm font-medium text-gray-700">Work #{index + 1}</span>
+                      <button
+                        onClick={() => removeWork(index)}
+                        className="text-red-500 hover:text-red-700 text-xs"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        placeholder="Company"
+                        value={job.company}
+                        onChange={(e) => handleWorkChange(index, "company", e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Position"
+                        value={job.position}
+                        onChange={(e) => handleWorkChange(index, "position", e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          placeholder="Start (YYYY-MM)"
+                          value={job.startDate}
+                          onChange={(e) => handleWorkChange(index, "startDate", e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        />
+                        <input
+                          type="text"
+                          placeholder="End (or Present)"
+                          value={job.endDate || ""}
+                          onChange={(e) => handleWorkChange(index, "endDate", e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        />
+                      </div>
+                      <textarea
+                        placeholder="Summary"
+                        value={job.summary || ""}
+                        onChange={(e) => handleWorkChange(index, "summary", e.target.value)}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                      <textarea
+                        placeholder="Highlights (one per line)"
+                        value={job.highlights?.join("\n") || ""}
+                        onChange={(e) => handleWorkChange(index, "highlights", e.target.value.split("\n").filter(h => h.trim()))}
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                    </div>
+                  </div>
+                ))}
+                <button
+                  onClick={addWork}
+                  className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-500 text-sm"
+                >
+                  + Add Work Experience
+                </button>
+              </div>
+            )}
+
+            {/* Education */}
+            {editSubTab === "education" && (
+              <div className="space-y-4">
+                {resume.education?.map((edu, index) => (
+                  <div key={index} className="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-sm font-medium text-gray-700">Education #{index + 1}</span>
+                      <button
+                        onClick={() => removeEducation(index)}
+                        className="text-red-500 hover:text-red-700 text-xs"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        placeholder="Institution"
+                        value={edu.institution}
+                        onChange={(e) => handleEducationChange(index, "institution", e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          placeholder="Degree (Bachelor, Master...)"
+                          value={edu.studyType}
+                          onChange={(e) => handleEducationChange(index, "studyType", e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Field of Study"
+                          value={edu.area}
+                          onChange={(e) => handleEducationChange(index, "area", e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          placeholder="Start (YYYY-MM)"
+                          value={edu.startDate}
+                          onChange={(e) => handleEducationChange(index, "startDate", e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        />
+                        <input
+                          type="text"
+                          placeholder="End (YYYY-MM)"
+                          value={edu.endDate || ""}
+                          onChange={(e) => handleEducationChange(index, "endDate", e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  onClick={addEducation}
+                  className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-500 text-sm"
+                >
+                  + Add Education
+                </button>
+              </div>
+            )}
+
+            {/* Skills */}
+            {editSubTab === "skills" && (
+              <div className="space-y-4">
+                {resume.skills?.map((skill, index) => (
+                  <div key={index} className="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-sm font-medium text-gray-700">Skill Group #{index + 1}</span>
+                      <button
+                        onClick={() => removeSkill(index)}
+                        className="text-red-500 hover:text-red-700 text-xs"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        placeholder="Category (e.g., Programming, Design)"
+                        value={skill.name}
+                        onChange={(e) => handleSkillChange(index, "name", e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                      <textarea
+                        placeholder="Skills (comma separated)"
+                        value={skill.keywords?.join(", ") || ""}
+                        onChange={(e) => handleSkillChange(index, "keywords", e.target.value.split(",").map(s => s.trim()).filter(s => s))}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                    </div>
+                  </div>
+                ))}
+                <button
+                  onClick={addSkill}
+                  className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-500 text-sm"
+                >
+                  + Add Skill Group
+                </button>
+              </div>
+            )}
+
+            {/* Projects */}
+            {editSubTab === "projects" && (
+              <div className="space-y-4">
+                {resume.projects?.map((project, index) => (
+                  <div key={index} className="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-sm font-medium text-gray-700">Project #{index + 1}</span>
+                      <button
+                        onClick={() => removeProject(index)}
+                        className="text-red-500 hover:text-red-700 text-xs"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        placeholder="Project Name"
+                        value={project.name}
+                        onChange={(e) => handleProjectChange(index, "name", e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                      <input
+                        type="text"
+                        placeholder="URL (optional)"
+                        value={project.url || ""}
+                        onChange={(e) => handleProjectChange(index, "url", e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                      <textarea
+                        placeholder="Description"
+                        value={project.description || ""}
+                        onChange={(e) => handleProjectChange(index, "description", e.target.value)}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                      <textarea
+                        placeholder="Highlights (one per line)"
+                        value={project.highlights?.join("\n") || ""}
+                        onChange={(e) => handleProjectChange(index, "highlights", e.target.value.split("\n").filter(h => h.trim()))}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                    </div>
+                  </div>
+                ))}
+                <button
+                  onClick={addProject}
+                  className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-500 text-sm"
+                >
+                  + Add Project
+                </button>
+              </div>
+            )}
+
+            {/* Other (Languages, Certificates, Awards, References) */}
+            {editSubTab === "other" && (
+              <div className="space-y-6">
+                {/* Languages */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Languages</h3>
+                  {resume.languages?.map((lang, index) => (
+                    <div key={index} className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        placeholder="Language"
+                        value={lang.language}
+                        onChange={(e) => {
+                          const newLangs = [...(resume.languages || [])];
+                          newLangs[index] = { ...newLangs[index], language: e.target.value };
+                          onResumeChange({ ...resume, languages: newLangs });
+                        }}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Fluency"
+                        value={lang.fluency}
+                        onChange={(e) => {
+                          const newLangs = [...(resume.languages || [])];
+                          newLangs[index] = { ...newLangs[index], fluency: e.target.value };
+                          onResumeChange({ ...resume, languages: newLangs });
+                        }}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                      <button
+                        onClick={() => {
+                          const newLangs = [...(resume.languages || [])];
+                          newLangs.splice(index, 1);
+                          onResumeChange({ ...resume, languages: newLangs });
+                        }}
+                        className="text-red-500 px-2"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
                   <button
-                    onClick={() => removeSkill(index)}
-                    className="text-red-500 hover:text-red-700 text-xs"
+                    onClick={() => onResumeChange({ ...resume, languages: [...(resume.languages || []), { language: "", fluency: "" }] })}
+                    className="text-blue-600 text-sm hover:underline"
                   >
-                    Remove
+                    + Add Language
                   </button>
                 </div>
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Category (e.g., Programming, Design)"
-                    value={skill.name}
-                    onChange={(e) => handleSkillChange(index, "name", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                  <textarea
-                    placeholder="Skills (comma separated)"
-                    value={skill.keywords?.join(", ") || ""}
-                    onChange={(e) => handleSkillChange(index, "keywords", e.target.value.split(",").map(s => s.trim()).filter(s => s))}
-                    rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                </div>
-              </div>
-            ))}
-            <button
-              onClick={addSkill}
-              className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-500 text-sm"
-            >
-              + Add Skill Group
-            </button>
-          </div>
-        )}
 
-        {/* Projects Tab */}
-        {activeTab === "projects" && (
-          <div className="space-y-4">
-            {resume.projects?.map((project, index) => (
-              <div key={index} className="p-3 border border-gray-200 rounded-lg bg-gray-50">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-sm font-medium text-gray-700">Project #{index + 1}</span>
+                {/* Certificates */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Certificates</h3>
+                  {resume.certificates?.map((cert, index) => (
+                    <div key={index} className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        placeholder="Certificate Name"
+                        value={cert.name}
+                        onChange={(e) => {
+                          const newCerts = [...(resume.certificates || [])];
+                          newCerts[index] = { ...newCerts[index], name: e.target.value };
+                          onResumeChange({ ...resume, certificates: newCerts });
+                        }}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Issuer"
+                        value={cert.issuer}
+                        onChange={(e) => {
+                          const newCerts = [...(resume.certificates || [])];
+                          newCerts[index] = { ...newCerts[index], issuer: e.target.value };
+                          onResumeChange({ ...resume, certificates: newCerts });
+                        }}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                      <button
+                        onClick={() => {
+                          const newCerts = [...(resume.certificates || [])];
+                          newCerts.splice(index, 1);
+                          onResumeChange({ ...resume, certificates: newCerts });
+                        }}
+                        className="text-red-500 px-2"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
                   <button
-                    onClick={() => removeProject(index)}
-                    className="text-red-500 hover:text-red-700 text-xs"
+                    onClick={() => onResumeChange({ ...resume, certificates: [...(resume.certificates || []), { name: "", issuer: "", date: "" }] })}
+                    className="text-blue-600 text-sm hover:underline"
                   >
-                    Remove
+                    + Add Certificate
                   </button>
                 </div>
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Project Name"
-                    value={project.name}
-                    onChange={(e) => handleProjectChange(index, "name", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                  <input
-                    type="text"
-                    placeholder="URL (optional)"
-                    value={project.url || ""}
-                    onChange={(e) => handleProjectChange(index, "url", e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                  <textarea
-                    placeholder="Description"
-                    value={project.description || ""}
-                    onChange={(e) => handleProjectChange(index, "description", e.target.value)}
-                    rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                  <textarea
-                    placeholder="Highlights (one per line)"
-                    value={project.highlights?.join("\n") || ""}
-                    onChange={(e) => handleProjectChange(index, "highlights", e.target.value.split("\n").filter(h => h.trim()))}
-                    rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                </div>
-              </div>
-            ))}
-            <button
-              onClick={addProject}
-              className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-500 text-sm"
-            >
-              + Add Project
-            </button>
-          </div>
-        )}
 
-        {/* Other Tab (Languages, Certificates, Awards, References) */}
-        {activeTab === "other" && (
-          <div className="space-y-6">
-            {/* Languages */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Languages</h3>
-              {resume.languages?.map((lang, index) => (
-                <div key={index} className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    placeholder="Language"
-                    value={lang.language}
-                    onChange={(e) => {
-                      const newLangs = [...(resume.languages || [])];
-                      newLangs[index] = { ...newLangs[index], language: e.target.value };
-                      onResumeChange({ ...resume, languages: newLangs });
-                    }}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Fluency"
-                    value={lang.fluency}
-                    onChange={(e) => {
-                      const newLangs = [...(resume.languages || [])];
-                      newLangs[index] = { ...newLangs[index], fluency: e.target.value };
-                      onResumeChange({ ...resume, languages: newLangs });
-                    }}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
+                {/* Awards */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Awards</h3>
+                  {resume.awards?.map((award, index) => (
+                    <div key={index} className="p-2 border border-gray-200 rounded mb-2">
+                      <div className="flex justify-between mb-2">
+                        <input
+                          type="text"
+                          placeholder="Award Title"
+                          value={award.title}
+                          onChange={(e) => {
+                            const newAwards = [...(resume.awards || [])];
+                            newAwards[index] = { ...newAwards[index], title: e.target.value };
+                            onResumeChange({ ...resume, awards: newAwards });
+                          }}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
+                        />
+                        <button
+                          onClick={() => {
+                            const newAwards = [...(resume.awards || [])];
+                            newAwards.splice(index, 1);
+                            onResumeChange({ ...resume, awards: newAwards });
+                          }}
+                          className="text-red-500 px-2"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Awarder"
+                        value={award.awarder}
+                        onChange={(e) => {
+                          const newAwards = [...(resume.awards || [])];
+                          newAwards[index] = { ...newAwards[index], awarder: e.target.value };
+                          onResumeChange({ ...resume, awards: newAwards });
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm mb-2"
+                      />
+                      <textarea
+                        placeholder="Summary (optional)"
+                        value={award.summary || ""}
+                        onChange={(e) => {
+                          const newAwards = [...(resume.awards || [])];
+                          newAwards[index] = { ...newAwards[index], summary: e.target.value };
+                          onResumeChange({ ...resume, awards: newAwards });
+                        }}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => onResumeChange({ ...resume, awards: [...(resume.awards || []), { title: "", awarder: "", date: "" }] })}
+                    className="text-blue-600 text-sm hover:underline"
+                  >
+                    + Add Award
+                  </button>
+                </div>
+
+                {/* References */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">References</h3>
+                  {resume.references?.map((ref, index) => (
+                    <div key={index} className="p-2 border border-gray-200 rounded mb-2">
+                      <div className="flex justify-between mb-2">
+                        <input
+                          type="text"
+                          placeholder="Name"
+                          value={ref.name}
+                          onChange={(e) => {
+                            const newRefs = [...(resume.references || [])];
+                            newRefs[index] = { ...newRefs[index], name: e.target.value };
+                            onResumeChange({ ...resume, references: newRefs });
+                          }}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
+                        />
+                        <button
+                          onClick={() => {
+                            const newRefs = [...(resume.references || [])];
+                            newRefs.splice(index, 1);
+                            onResumeChange({ ...resume, references: newRefs });
+                          }}
+                          className="text-red-500 px-2"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <textarea
+                        placeholder="Reference text"
+                        value={ref.reference}
+                        onChange={(e) => {
+                          const newRefs = [...(resume.references || [])];
+                          newRefs[index] = { ...newRefs[index], reference: e.target.value };
+                          onResumeChange({ ...resume, references: newRefs });
+                        }}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                      />
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => onResumeChange({ ...resume, references: [...(resume.references || []), { name: "", reference: "" }] })}
+                    className="text-blue-600 text-sm hover:underline"
+                  >
+                    + Add Reference
+                  </button>
+                </div>
+
+                {/* Download JSON */}
+                <div className="pt-4 border-t border-gray-200">
                   <button
                     onClick={() => {
-                      const newLangs = [...(resume.languages || [])];
-                      newLangs.splice(index, 1);
-                      onResumeChange({ ...resume, languages: newLangs });
+                      const blob = new Blob([JSON.stringify(resume, null, 2)], { type: "application/json" });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `${resume.basics.name.replace(/\s+/g, "_")}_resume.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
                     }}
-                    className="text-red-500 px-2"
+                    className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                   >
-                    ×
+                    Download JSON
                   </button>
                 </div>
-              ))}
-              <button
-                onClick={() => onResumeChange({ ...resume, languages: [...(resume.languages || []), { language: "", fluency: "" }] })}
-                className="text-blue-600 text-sm hover:underline"
-              >
-                + Add Language
-              </button>
-            </div>
-
-            {/* Certificates */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Certificates</h3>
-              {resume.certificates?.map((cert, index) => (
-                <div key={index} className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    placeholder="Certificate Name"
-                    value={cert.name}
-                    onChange={(e) => {
-                      const newCerts = [...(resume.certificates || [])];
-                      newCerts[index] = { ...newCerts[index], name: e.target.value };
-                      onResumeChange({ ...resume, certificates: newCerts });
-                    }}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Issuer"
-                    value={cert.issuer}
-                    onChange={(e) => {
-                      const newCerts = [...(resume.certificates || [])];
-                      newCerts[index] = { ...newCerts[index], issuer: e.target.value };
-                      onResumeChange({ ...resume, certificates: newCerts });
-                    }}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                  <button
-                    onClick={() => {
-                      const newCerts = [...(resume.certificates || [])];
-                      newCerts.splice(index, 1);
-                      onResumeChange({ ...resume, certificates: newCerts });
-                    }}
-                    className="text-red-500 px-2"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-              <button
-                onClick={() => onResumeChange({ ...resume, certificates: [...(resume.certificates || []), { name: "", issuer: "", date: "" }] })}
-                className="text-blue-600 text-sm hover:underline"
-              >
-                + Add Certificate
-              </button>
-            </div>
-
-            {/* References */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-2">References</h3>
-              {resume.references?.map((ref, index) => (
-                <div key={index} className="p-2 border border-gray-200 rounded mb-2">
-                  <div className="flex justify-between mb-2">
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      value={ref.name}
-                      onChange={(e) => {
-                        const newRefs = [...(resume.references || [])];
-                        newRefs[index] = { ...newRefs[index], name: e.target.value };
-                        onResumeChange({ ...resume, references: newRefs });
-                      }}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
-                    />
-                    <button
-                      onClick={() => {
-                        const newRefs = [...(resume.references || [])];
-                        newRefs.splice(index, 1);
-                        onResumeChange({ ...resume, references: newRefs });
-                      }}
-                      className="text-red-500 px-2"
-                    >
-                      ×
-                    </button>
-                  </div>
-                  <textarea
-                    placeholder="Reference text"
-                    value={ref.reference}
-                    onChange={(e) => {
-                      const newRefs = [...(resume.references || [])];
-                      newRefs[index] = { ...newRefs[index], reference: e.target.value };
-                      onResumeChange({ ...resume, references: newRefs });
-                    }}
-                    rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                  />
-                </div>
-              ))}
-              <button
-                onClick={() => onResumeChange({ ...resume, references: [...(resume.references || []), { name: "", reference: "" }] })}
-                className="text-blue-600 text-sm hover:underline"
-              >
-                + Add Reference
-              </button>
-            </div>
-
-            {/* Download JSON */}
-            <div className="pt-4 border-t border-gray-200">
-              <button
-                onClick={() => {
-                  const blob = new Blob([JSON.stringify(resume, null, 2)], { type: "application/json" });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `${resume.basics.name.replace(/\s+/g, "_")}_resume.json`;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }}
-                className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Download JSON
-              </button>
-            </div>
-          </div>
+              </div>
+            )}
+          </>
         )}
 
-        {/* Style Tab */}
-        {activeTab === "style" && (
+        {/* ===== STYLE TAB ===== */}
+        {mainTab === "style" && (
           <div className="space-y-6">
             {/* Font Family */}
             <div>
@@ -741,7 +831,7 @@ export default function Customizer({ resume, styles, onStylesChange, onResumeCha
 
             {/* Color Theme */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Color Theme</label>
               <div className="grid grid-cols-4 gap-2">
                 {COLOR_PRESETS.map((preset) => (
                   <button
@@ -763,7 +853,7 @@ export default function Customizer({ resume, styles, onStylesChange, onResumeCha
 
             {/* Font Sizes */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Sizes</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Font Sizes</label>
               <div className="space-y-3">
                 {[
                   { key: "h1Size", label: "Name", max: "3.5" },
@@ -790,10 +880,10 @@ export default function Customizer({ resume, styles, onStylesChange, onResumeCha
           </div>
         )}
 
-        {/* Sections Tab */}
-        {activeTab === "sections" && (
+        {/* ===== SHOW/HIDE TAB ===== */}
+        {mainTab === "sections" && (
           <div className="space-y-2">
-            <p className="text-sm text-gray-500 mb-4">Toggle sections to show/hide.</p>
+            <p className="text-sm text-gray-500 mb-4">Toggle sections to show or hide in your CV.</p>
             {SECTIONS.map((section) => {
               const hasData = sectionHasData(section.id);
               const isVisible = styles.visibleSections.includes(section.id);
