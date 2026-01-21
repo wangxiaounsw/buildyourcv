@@ -7,17 +7,17 @@ interface ElegantProps {
 }
 
 export default function Elegant({ resume }: ElegantProps) {
-  const { basics, work, education, skills, projects, languages } = resume;
+  const { basics, work, education, skills, projects, languages, references, certificates, awards } = resume;
 
   return (
-    <div className="max-w-4xl mx-auto bg-white p-8 shadow-lg font-sans">
+    <div className="max-w-4xl mx-auto bg-white p-8 shadow-lg cv-font cv-body">
       {/* Header */}
-      <header className="border-b-2 border-blue-600 pb-4 mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">{basics.name}</h1>
+      <header className="border-b-2 cv-border-primary pb-4 mb-6">
+        <h1 className="font-bold text-gray-800 cv-h1">{basics.name}</h1>
         {basics.label && (
-          <p className="text-xl text-blue-600 mt-1">{basics.label}</p>
+          <p className="cv-primary mt-1 cv-h2">{basics.label}</p>
         )}
-        <div className="flex flex-wrap gap-4 mt-3 text-sm text-gray-600">
+        <div className="flex flex-wrap gap-4 mt-3 text-gray-600">
           {basics.email && (
             <span className="flex items-center gap-1">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,7 +52,7 @@ export default function Elegant({ resume }: ElegantProps) {
                 href={profile.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:underline text-sm"
+                className="cv-primary hover:underline"
               >
                 {profile.network}
               </a>
@@ -64,7 +64,7 @@ export default function Elegant({ resume }: ElegantProps) {
       {/* Summary */}
       {basics.summary && (
         <section className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-2 uppercase tracking-wide">Summary</h2>
+          <h2 className="font-semibold text-gray-800 mb-2 uppercase tracking-wide cv-h2">Summary</h2>
           <p className="text-gray-600 leading-relaxed">{basics.summary}</p>
         </section>
       )}
@@ -72,27 +72,27 @@ export default function Elegant({ resume }: ElegantProps) {
       {/* Work Experience */}
       {work && work.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3 uppercase tracking-wide">Work Experience</h2>
+          <h2 className="font-semibold text-gray-800 mb-3 uppercase tracking-wide cv-h2">Work Experience</h2>
           <div className="space-y-4">
             {work.map((job, index) => (
               <div key={index} className="border-l-2 border-gray-200 pl-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-semibold text-gray-800">{job.position}</h3>
-                    <p className="text-blue-600">{job.company}</p>
+                    <h3 className="font-semibold text-gray-800 cv-h3">{job.position}</h3>
+                    <p className="cv-primary">{job.company}</p>
                   </div>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-gray-500">
                     {job.startDate} - {job.endDate || "Present"}
                   </span>
                 </div>
                 {job.summary && (
-                  <p className="text-gray-600 mt-2 text-sm">{job.summary}</p>
+                  <p className="text-gray-600 mt-2">{job.summary}</p>
                 )}
                 {job.highlights && job.highlights.length > 0 && (
                   <ul className="mt-2 space-y-1">
                     {job.highlights.map((highlight, i) => (
-                      <li key={i} className="text-sm text-gray-600 flex items-start">
-                        <span className="text-blue-600 mr-2">•</span>
+                      <li key={i} className="text-gray-600 flex items-start">
+                        <span className="cv-primary mr-2">•</span>
                         {highlight}
                       </li>
                     ))}
@@ -107,16 +107,16 @@ export default function Elegant({ resume }: ElegantProps) {
       {/* Education */}
       {education && education.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3 uppercase tracking-wide">Education</h2>
+          <h2 className="font-semibold text-gray-800 mb-3 uppercase tracking-wide cv-h2">Education</h2>
           <div className="space-y-3">
             {education.map((edu, index) => (
               <div key={index} className="border-l-2 border-gray-200 pl-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-semibold text-gray-800">{edu.studyType} in {edu.area}</h3>
-                    <p className="text-blue-600">{edu.institution}</p>
+                    <h3 className="font-semibold text-gray-800 cv-h3">{edu.studyType} in {edu.area}</h3>
+                    <p className="cv-primary">{edu.institution}</p>
                   </div>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-gray-500">
                     {edu.startDate} - {edu.endDate || "Present"}
                   </span>
                 </div>
@@ -129,7 +129,7 @@ export default function Elegant({ resume }: ElegantProps) {
       {/* Skills */}
       {skills && skills.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3 uppercase tracking-wide">Skills</h2>
+          <h2 className="font-semibold text-gray-800 mb-3 uppercase tracking-wide cv-h2">Skills</h2>
           <div className="flex flex-wrap gap-2">
             {skills.map((skill, index) => (
               <div key={index} className="mb-2">
@@ -148,13 +148,13 @@ export default function Elegant({ resume }: ElegantProps) {
       {/* Projects */}
       {projects && projects.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3 uppercase tracking-wide">Projects</h2>
+          <h2 className="font-semibold text-gray-800 mb-3 uppercase tracking-wide cv-h2">Projects</h2>
           <div className="space-y-3">
             {projects.map((project, index) => (
               <div key={index} className="border-l-2 border-gray-200 pl-4">
-                <h3 className="font-semibold text-gray-800">
+                <h3 className="font-semibold text-gray-800 cv-h3">
                   {project.url ? (
-                    <a href={project.url} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">
+                    <a href={project.url} target="_blank" rel="noopener noreferrer" className="hover:cv-primary">
                       {project.name}
                     </a>
                   ) : (
@@ -162,13 +162,13 @@ export default function Elegant({ resume }: ElegantProps) {
                   )}
                 </h3>
                 {project.description && (
-                  <p className="text-gray-600 text-sm mt-1">{project.description}</p>
+                  <p className="text-gray-600 mt-1">{project.description}</p>
                 )}
                 {project.highlights && project.highlights.length > 0 && (
                   <ul className="mt-2 space-y-1">
                     {project.highlights.map((highlight, i) => (
-                      <li key={i} className="text-sm text-gray-600 flex items-start">
-                        <span className="text-blue-600 mr-2">•</span>
+                      <li key={i} className="text-gray-600 flex items-start">
+                        <span className="cv-primary mr-2">•</span>
                         {highlight}
                       </li>
                     ))}
@@ -183,13 +183,75 @@ export default function Elegant({ resume }: ElegantProps) {
       {/* Languages */}
       {languages && languages.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-3 uppercase tracking-wide">Languages</h2>
+          <h2 className="font-semibold text-gray-800 mb-3 uppercase tracking-wide cv-h2">Languages</h2>
           <div className="flex flex-wrap gap-4">
             {languages.map((lang, index) => (
               <div key={index} className="text-gray-600">
                 <span className="font-medium">{lang.language}</span>
                 <span className="text-gray-400"> - </span>
                 <span>{lang.fluency}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Certificates */}
+      {certificates && certificates.length > 0 && (
+        <section className="mb-6">
+          <h2 className="font-semibold text-gray-800 mb-3 uppercase tracking-wide cv-h2">Certificates</h2>
+          <div className="space-y-2">
+            {certificates.map((cert, index) => (
+              <div key={index} className="border-l-2 border-gray-200 pl-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold text-gray-800 cv-h3">{cert.name}</h3>
+                    <p className="cv-primary">{cert.issuer}</p>
+                  </div>
+                  {cert.date && (
+                    <span className="text-gray-500">{cert.date}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Awards */}
+      {awards && awards.length > 0 && (
+        <section className="mb-6">
+          <h2 className="font-semibold text-gray-800 mb-3 uppercase tracking-wide cv-h2">Awards</h2>
+          <div className="space-y-2">
+            {awards.map((award, index) => (
+              <div key={index} className="border-l-2 border-gray-200 pl-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold text-gray-800 cv-h3">{award.title}</h3>
+                    <p className="cv-primary">{award.awarder}</p>
+                    {award.summary && (
+                      <p className="text-gray-600 mt-1">{award.summary}</p>
+                    )}
+                  </div>
+                  {award.date && (
+                    <span className="text-gray-500">{award.date}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* References */}
+      {references && references.length > 0 && (
+        <section className="mb-6">
+          <h2 className="font-semibold text-gray-800 mb-3 uppercase tracking-wide cv-h2">References</h2>
+          <div className="space-y-4">
+            {references.map((ref, index) => (
+              <div key={index} className="border-l-2 border-gray-200 pl-4">
+                <h3 className="font-semibold text-gray-800 cv-h3">{ref.name}</h3>
+                <p className="text-gray-600 italic mt-1">&ldquo;{ref.reference}&rdquo;</p>
               </div>
             ))}
           </div>
