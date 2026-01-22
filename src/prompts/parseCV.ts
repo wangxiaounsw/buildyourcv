@@ -130,8 +130,12 @@ Return JSON following this COMPLETE structure:
   ],
   "references": [
     {
-      "name": "Reference Person Name",
-      "reference": "Their title, company, contact info, or testimonial"
+      "name": "Reference Person Name (REQUIRED)",
+      "title": "Their job title (e.g., Senior Manager, Director)",
+      "company": "Their company/organization name",
+      "contact": "Their email or phone number",
+      "relationship": "Relationship to candidate (e.g., Former Supervisor, Direct Manager, Colleague)",
+      "reference": "Recommendation text or testimonial quote (if provided)"
     }
   ],
   "projects": [
@@ -156,9 +160,10 @@ EXTRACTION TIPS:
 - Work experience may be labeled as "Experience", "Employment History", "Work History"
 - Education section may include certifications
 - Skills may be scattered throughout - collect them all
-- References may say "Available upon request" - still include this
+- References may say "Available upon request" - if so, leave references array empty
 - Projects may be under "Projects", "Portfolio", "Key Projects"
-- Look for LinkedIn, GitHub, portfolio URLs in contact section`;
+- Look for LinkedIn, GitHub, portfolio URLs in contact section
+- For References: SEPARATE the person's name, job title, company, and contact info into their own fields. Only put actual recommendation quotes/testimonials in the "reference" field`;
 
 export const PARSE_CV_USER_PROMPT = (cvText: string) =>
   `Parse this CV and extract ALL information into JSON Resume format. Do not miss any details:\n\n${cvText}`;
