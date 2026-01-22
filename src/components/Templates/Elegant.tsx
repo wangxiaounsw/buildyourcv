@@ -4,10 +4,12 @@ import { JsonResume } from "@/types/resume";
 
 interface ElegantProps {
   resume: JsonResume;
+  visibleSections?: string[];
 }
 
-export default function Elegant({ resume }: ElegantProps) {
+export default function Elegant({ resume, visibleSections = [] }: ElegantProps) {
   const { basics, work, education, skills, projects, languages, references, certificates, awards } = resume;
+  const showReferencesSection = visibleSections.includes("references");
 
   return (
     <div className="max-w-4xl mx-auto bg-white p-8 shadow-lg cv-font cv-body">
@@ -244,17 +246,34 @@ export default function Elegant({ resume }: ElegantProps) {
       )}
 
       {/* References */}
-      {references && references.length > 0 && (
+      {showReferencesSection && (
         <section className="mb-6">
           <h2 className="font-semibold text-gray-800 mb-3 uppercase tracking-wide cv-h2">References</h2>
-          <div className="space-y-4">
-            {references.map((ref, index) => (
-              <div key={index} className="border-l-2 border-gray-200 pl-4">
-                <h3 className="font-semibold text-gray-800 cv-h3">{ref.name}</h3>
-                <p className="text-gray-600 italic mt-1">&ldquo;{ref.reference}&rdquo;</p>
-              </div>
-            ))}
-          </div>
+          {references && references.length > 0 ? (
+            <div className="space-y-4">
+              {references.map((ref, index) => (
+                <div key={index} className="border-l-2 border-gray-200 pl-4">
+                  <h3 className="font-semibold text-gray-800 cv-h3">{ref.name}</h3>
+                  {(ref.title || ref.company) && (
+                    <p className="cv-primary">
+                      {ref.title}{ref.title && ref.company && ", "}{ref.company}
+                    </p>
+                  )}
+                  {ref.relationship && (
+                    <p className="text-gray-500 text-sm">{ref.relationship}</p>
+                  )}
+                  {ref.contact && (
+                    <p className="text-gray-500 text-sm">{ref.contact}</p>
+                  )}
+                  {ref.reference && (
+                    <p className="text-gray-600 italic mt-1">&ldquo;{ref.reference}&rdquo;</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600 italic">References available upon request</p>
+          )}
         </section>
       )}
     </div>

@@ -4,10 +4,12 @@ import { JsonResume } from "@/types/resume";
 
 interface ModernProps {
   resume: JsonResume;
+  visibleSections?: string[];
 }
 
-export default function Modern({ resume }: ModernProps) {
+export default function Modern({ resume, visibleSections = [] }: ModernProps) {
   const { basics, work, education, skills, projects, languages, references, certificates, awards } = resume;
+  const showReferencesSection = visibleSections.includes("references");
 
   return (
     <div className="max-w-4xl mx-auto bg-white cv-font">
@@ -253,26 +255,43 @@ export default function Modern({ resume }: ModernProps) {
         )}
 
         {/* References */}
-        {references && references.length > 0 && (
+        {showReferencesSection && (
           <section className="mt-10">
             <h2 className="text-xs font-semibold uppercase tracking-widest mb-6 cv-primary">
               References
             </h2>
-            <div className="grid grid-cols-2 gap-6">
-              {references.map((ref, index) => (
-                <div
-                  key={index}
-                  className="p-6 rounded-2xl border"
-                  style={{
-                    background: `linear-gradient(135deg, #f9fafb, color-mix(in srgb, var(--cv-primary-color, #4f46e5) 5%, white))`,
-                    borderColor: "color-mix(in srgb, var(--cv-primary-color, #4f46e5) 15%, white)"
-                  }}
-                >
-                  <h3 className="font-semibold text-gray-800 mb-2 cv-h3">{ref.name}</h3>
-                  <p className="text-gray-600 font-light italic">&ldquo;{ref.reference}&rdquo;</p>
-                </div>
-              ))}
-            </div>
+            {references && references.length > 0 ? (
+              <div className="grid grid-cols-2 gap-6">
+                {references.map((ref, index) => (
+                  <div
+                    key={index}
+                    className="p-6 rounded-2xl border"
+                    style={{
+                      background: `linear-gradient(135deg, #f9fafb, color-mix(in srgb, var(--cv-primary-color, #4f46e5) 5%, white))`,
+                      borderColor: "color-mix(in srgb, var(--cv-primary-color, #4f46e5) 15%, white)"
+                    }}
+                  >
+                    <h3 className="font-semibold text-gray-800 cv-h3">{ref.name}</h3>
+                    {(ref.title || ref.company) && (
+                      <p className="cv-primary text-sm">
+                        {ref.title}{ref.title && ref.company && ", "}{ref.company}
+                      </p>
+                    )}
+                    {ref.relationship && (
+                      <p className="text-gray-500 text-sm">{ref.relationship}</p>
+                    )}
+                    {ref.contact && (
+                      <p className="text-gray-500 text-sm">{ref.contact}</p>
+                    )}
+                    {ref.reference && (
+                      <p className="text-gray-600 font-light italic mt-2">&ldquo;{ref.reference}&rdquo;</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 font-light italic">References available upon request</p>
+            )}
           </section>
         )}
       </div>

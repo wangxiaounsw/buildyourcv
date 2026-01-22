@@ -79,16 +79,17 @@ export default function Preview({
   } as React.CSSProperties), [styles]);
 
   const renderTemplate = () => {
+    const templateProps = { resume: filteredResume, visibleSections: styles.visibleSections };
     switch (template) {
       case "kendall":
-        return <Kendall resume={filteredResume} />;
+        return <Kendall {...templateProps} />;
       case "stackoverflow":
-        return <Stackoverflow resume={filteredResume} />;
+        return <Stackoverflow {...templateProps} />;
       case "modern":
-        return <Modern resume={filteredResume} />;
+        return <Modern {...templateProps} />;
       case "elegant":
       default:
-        return <Elegant resume={filteredResume} />;
+        return <Elegant {...templateProps} />;
     }
   };
 

@@ -4,10 +4,12 @@ import { JsonResume } from "@/types/resume";
 
 interface StackoverflowProps {
   resume: JsonResume;
+  visibleSections?: string[];
 }
 
-export default function Stackoverflow({ resume }: StackoverflowProps) {
+export default function Stackoverflow({ resume, visibleSections = [] }: StackoverflowProps) {
   const { basics, work, education, skills, projects, languages, references, certificates } = resume;
+  const showReferencesSection = visibleSections.includes("references");
 
   return (
     <div className="max-w-4xl mx-auto bg-white p-8 cv-font cv-body">
@@ -214,19 +216,36 @@ export default function Stackoverflow({ resume }: StackoverflowProps) {
       )}
 
       {/* References */}
-      {references && references.length > 0 && (
+      {showReferencesSection && (
         <section className="mt-6">
           <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
             // REFERENCES
           </h2>
-          <div className="grid grid-cols-2 gap-4">
-            {references.map((ref, index) => (
-              <div key={index} className="bg-gray-50 p-4 rounded border border-gray-200">
-                <h3 className="font-bold text-gray-900 cv-h3">{ref.name}</h3>
-                <p className="text-gray-600 text-xs mt-2 italic">&ldquo;{ref.reference}&rdquo;</p>
-              </div>
-            ))}
-          </div>
+          {references && references.length > 0 ? (
+            <div className="grid grid-cols-2 gap-4">
+              {references.map((ref, index) => (
+                <div key={index} className="bg-gray-50 p-4 rounded border border-gray-200">
+                  <h3 className="font-bold text-gray-900 cv-h3">{ref.name}</h3>
+                  {(ref.title || ref.company) && (
+                    <p className="cv-primary text-xs">
+                      {ref.title}{ref.title && ref.company && ", "}{ref.company}
+                    </p>
+                  )}
+                  {ref.relationship && (
+                    <p className="text-gray-500 text-xs">{ref.relationship}</p>
+                  )}
+                  {ref.contact && (
+                    <p className="text-gray-500 text-xs">{ref.contact}</p>
+                  )}
+                  {ref.reference && (
+                    <p className="text-gray-600 text-xs mt-2 italic">&ldquo;{ref.reference}&rdquo;</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-xs italic">// References available upon request</p>
+          )}
         </section>
       )}
 

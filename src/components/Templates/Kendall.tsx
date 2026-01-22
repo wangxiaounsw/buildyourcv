@@ -4,10 +4,12 @@ import { JsonResume } from "@/types/resume";
 
 interface KendallProps {
   resume: JsonResume;
+  visibleSections?: string[];
 }
 
-export default function Kendall({ resume }: KendallProps) {
+export default function Kendall({ resume, visibleSections = [] }: KendallProps) {
   const { basics, work, education, skills, projects, languages, certificates, references, awards } = resume;
+  const showReferencesSection = visibleSections.includes("references");
 
   return (
     <div className="max-w-4xl mx-auto bg-white text-gray-800 cv-font cv-body">
@@ -219,19 +221,36 @@ export default function Kendall({ resume }: KendallProps) {
           )}
 
           {/* References */}
-          {references && references.length > 0 && (
+          {showReferencesSection && (
             <section>
               <h2 className="font-bold text-gray-800 uppercase tracking-wider mb-4 cv-h3">
                 References
               </h2>
-              <div className="space-y-3">
-                {references.map((ref, index) => (
-                  <div key={index}>
-                    <p className="text-gray-700 font-medium">{ref.name}</p>
-                    <p className="text-xs text-gray-500 italic">&ldquo;{ref.reference}&rdquo;</p>
-                  </div>
-                ))}
-              </div>
+              {references && references.length > 0 ? (
+                <div className="space-y-3">
+                  {references.map((ref, index) => (
+                    <div key={index}>
+                      <p className="text-gray-700 font-medium">{ref.name}</p>
+                      {(ref.title || ref.company) && (
+                        <p className="text-xs cv-primary">
+                          {ref.title}{ref.title && ref.company && ", "}{ref.company}
+                        </p>
+                      )}
+                      {ref.relationship && (
+                        <p className="text-xs text-gray-500">{ref.relationship}</p>
+                      )}
+                      {ref.contact && (
+                        <p className="text-xs text-gray-500">{ref.contact}</p>
+                      )}
+                      {ref.reference && (
+                        <p className="text-xs text-gray-500 italic mt-1">&ldquo;{ref.reference}&rdquo;</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500 italic">References available upon request</p>
+              )}
             </section>
           )}
         </aside>

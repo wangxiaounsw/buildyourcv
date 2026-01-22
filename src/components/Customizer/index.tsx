@@ -737,46 +737,100 @@ export default function Customizer({ resume, styles, onStylesChange, onResumeCha
                 {/* References */}
                 <div>
                   <h3 className="text-sm font-medium text-gray-700 mb-2">References</h3>
+                  <p className="text-xs text-gray-500 mb-3">
+                    Leave empty to show &quot;References available upon request&quot;
+                  </p>
                   {resume.references?.map((ref, index) => (
-                    <div key={index} className="p-2 border border-gray-200 rounded mb-2">
-                      <div className="flex justify-between mb-2">
-                        <input
-                          type="text"
-                          placeholder="Name"
-                          value={ref.name}
-                          onChange={(e) => {
-                            const newRefs = [...(resume.references || [])];
-                            newRefs[index] = { ...newRefs[index], name: e.target.value };
-                            onResumeChange({ ...resume, references: newRefs });
-                          }}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
-                        />
+                    <div key={index} className="p-3 border border-gray-200 rounded-lg bg-gray-50 mb-3">
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-sm font-medium text-gray-700">Reference #{index + 1}</span>
                         <button
                           onClick={() => {
                             const newRefs = [...(resume.references || [])];
                             newRefs.splice(index, 1);
                             onResumeChange({ ...resume, references: newRefs });
                           }}
-                          className="text-red-500 px-2"
+                          className="text-red-500 hover:text-red-700 text-xs"
                         >
-                          ×
+                          Remove
                         </button>
                       </div>
-                      <textarea
-                        placeholder="Reference text"
-                        value={ref.reference}
-                        onChange={(e) => {
-                          const newRefs = [...(resume.references || [])];
-                          newRefs[index] = { ...newRefs[index], reference: e.target.value };
-                          onResumeChange({ ...resume, references: newRefs });
-                        }}
-                        rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                      />
+                      <div className="space-y-2">
+                        <input
+                          type="text"
+                          placeholder="Name *"
+                          value={ref.name}
+                          onChange={(e) => {
+                            const newRefs = [...(resume.references || [])];
+                            newRefs[index] = { ...newRefs[index], name: e.target.value };
+                            onResumeChange({ ...resume, references: newRefs });
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        />
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            placeholder="Job Title"
+                            value={ref.title || ""}
+                            onChange={(e) => {
+                              const newRefs = [...(resume.references || [])];
+                              newRefs[index] = { ...newRefs[index], title: e.target.value };
+                              onResumeChange({ ...resume, references: newRefs });
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Company"
+                            value={ref.company || ""}
+                            onChange={(e) => {
+                              const newRefs = [...(resume.references || [])];
+                              newRefs[index] = { ...newRefs[index], company: e.target.value };
+                              onResumeChange({ ...resume, references: newRefs });
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            placeholder="Email or Phone"
+                            value={ref.contact || ""}
+                            onChange={(e) => {
+                              const newRefs = [...(resume.references || [])];
+                              newRefs[index] = { ...newRefs[index], contact: e.target.value };
+                              onResumeChange({ ...resume, references: newRefs });
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Relationship (e.g., Former Manager)"
+                            value={ref.relationship || ""}
+                            onChange={(e) => {
+                              const newRefs = [...(resume.references || [])];
+                              newRefs[index] = { ...newRefs[index], relationship: e.target.value };
+                              onResumeChange({ ...resume, references: newRefs });
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                          />
+                        </div>
+                        <textarea
+                          placeholder="Recommendation text (optional)"
+                          value={ref.reference || ""}
+                          onChange={(e) => {
+                            const newRefs = [...(resume.references || [])];
+                            newRefs[index] = { ...newRefs[index], reference: e.target.value };
+                            onResumeChange({ ...resume, references: newRefs });
+                          }}
+                          rows={2}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+                        />
+                      </div>
                     </div>
                   ))}
                   <button
-                    onClick={() => onResumeChange({ ...resume, references: [...(resume.references || []), { name: "", reference: "" }] })}
+                    onClick={() => onResumeChange({ ...resume, references: [...(resume.references || []), { name: "" }] })}
                     className="text-blue-600 text-sm hover:underline"
                   >
                     + Add Reference

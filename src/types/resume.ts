@@ -102,7 +102,11 @@ export interface Interest {
 
 export interface Reference {
   name: string;
-  reference: string;
+  title?: string;        // Job title, e.g., "Senior Manager"
+  company?: string;      // Company name
+  contact?: string;      // Email or phone
+  relationship?: string; // e.g., "Former Supervisor", "Colleague"
+  reference?: string;    // Reference text / recommendation (optional)
 }
 
 export interface Volunteer {
