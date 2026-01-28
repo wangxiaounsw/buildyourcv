@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Upload from "@/components/Upload";
 import Customizer, { CustomizerStyles, defaultStyles } from "@/components/Customizer";
 import Preview from "@/components/Preview";
 import { JsonResume, defaultResume } from "@/types/resume";
 
-type AppState = "upload" | "review" | "parsing" | "editing";
+type AppState = "upload" | "review" | "parsing" | "editing" | "importing";
 
 export default function Home() {
   const [appState, setAppState] = useState<AppState>("upload");
@@ -16,6 +16,49 @@ export default function Home() {
   const [template, setTemplate] = useState("elegant");
   const [styles, setStyles] = useState<CustomizerStyles>(defaultStyles);
   const [isExporting, setIsExporting] = useState(false);
+  const [importSource, setImportSource] = useState<string | null>(null);
+  const [pendingAutoExport, setPendingAutoExport] = useState(false);
+  const hasImportedRef = useRef(false);
+
+  // Check for import parameter on mount
+  useEffect(() => {
+    if (hasImportedRef.current) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const importId = urlParams.get("import");
+    const shouldAutoExport = urlParams.get("export") === "true";
+
+    if (importId) {
+      hasImportedRef.current = true;
+      setImportSource("FindYourJob");
+      setAppState("importing");
+
+      // Fetch resume data from FindYourJob API
+      const findYourJobUrl = process.env.NEXT_PUBLIC_FINDYOURJOB_URL || "https://findyourjob.today";
+      fetch(`${findYourJobUrl}/api/cv-export?id=${importId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) {
+            throw new Error(data.error);
+          }
+          setResume(data.resumeData);
+          setAppState("editing");
+
+          // Clear URL parameters
+          window.history.replaceState({}, "", window.location.pathname);
+
+          // Set flag for auto export
+          if (data.autoExport || shouldAutoExport) {
+            setPendingAutoExport(true);
+          }
+        })
+        .catch((err) => {
+          console.error("Import failed:", err);
+          setError(err.message || "Failed to import CV data");
+          setAppState("upload");
+        });
+    }
+  }, []);
 
   // Step 1: File uploaded, text extracted - show for review
   const handleTextExtracted = (text: string) => {
@@ -77,6 +120,18 @@ export default function Home() {
       setIsExporting(false);
     }
   };
+
+  // Auto export when flagged (after import completes)
+  useEffect(() => {
+    if (pendingAutoExport && appState === "editing" && !isExporting) {
+      setPendingAutoExport(false);
+      // Small delay to ensure the preview is fully rendered
+      const timer = setTimeout(() => {
+        handleExportPDF();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [pendingAutoExport, appState, isExporting]);
 
   // Upload State
   if (appState === "upload") {
@@ -242,6 +297,43 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Importing State (from FindYourJob)
+  if (appState === "importing") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-6">
+            <svg
+              className="animate-spin w-full h-full text-blue-600"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+            Importing from {importSource || "FindYourJob"}...
+          </h2>
+          <p className="text-gray-600">
+            Loading your profile data
+          </p>
         </div>
       </div>
     );
